@@ -1,0 +1,2 @@
+# RMCDP
+Implementation of various heuristics and metaheuristics in python to optimize the concrete delivery problem (Ready Mixed Concrete Delivery Problem). A docker database is available to simulate the algorithms implemented here. | Implementierung verschiedener Heuristiken und Metaheuristiken in Python zur Optimierung des konkreten Lieferproblems (Ready Mixed Concrete Delivery Problem). Zur Simulation der hier implementierten Algorithmen steht eine Docker-Datenbank zur Verfügung.
