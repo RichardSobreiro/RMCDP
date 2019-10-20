@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Contracts.Entities
+namespace Contracts.Entities.Instances
 {
     public class DeliveryOrder
     {
@@ -10,6 +10,7 @@ namespace Contracts.Entities
         public DateTime RequestedInitialDischargeTime { get; set; }
         public double VolumeTotal { get; set; }
         public int Interval { get; set; }
+        public Location Construction { get; set; }
         public List<DeliveryOrderTrip> Trips { get; set; }
     }
 }

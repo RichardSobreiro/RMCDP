@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29326.143
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "RMCDP.Api\Api.csproj", "{44E3102E-873A-48C8-9DB2-D2A49B7DC43C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api", "RMCDP.Api\Api.csproj", "{44E3102E-873A-48C8-9DB2-D2A49B7DC43C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 - Api", "1 - Api", "{D425EB02-3148-4C07-B26C-0ED6BEA6682E}"
 EndProject
@@ -15,19 +15,24 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4 - Contracts", "4 - Contra
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5 - CrossCutting", "5 - CrossCutting", "{C90F80C1-1B6A-4770-B695-F2812B6EB67A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Business", "Business\Business.csproj", "{D1B8079D-20C5-469B-9441-D066A0F656B2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Business", "Business\Business.csproj", "{D1B8079D-20C5-469B-9441-D066A0F656B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repository", "Repository\Repository.csproj", "{139EF5B5-48AA-46EB-9DD2-857A599F4BB5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Repository", "Repository\Repository.csproj", "{139EF5B5-48AA-46EB-9DD2-857A599F4BB5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contracts.Dto", "Contracts\Contracts.Dto.csproj", "{164386CC-8304-47D2-A152-070C17541933}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contracts.Dto", "Contracts\Contracts.Dto.csproj", "{164386CC-8304-47D2-A152-070C17541933}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrossCutting", "CrossCutting\CrossCutting.csproj", "{32885BED-FF99-4302-A3FD-F2A04F6FBEC5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CrossCutting", "CrossCutting\CrossCutting.csproj", "{32885BED-FF99-4302-A3FD-F2A04F6FBEC5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contracts.Entities", "Contracts.Entities\Contracts.Entities.csproj", "{D84B5745-13EA-4D2E-91B1-704EA96E8F25}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contracts.Entities", "Contracts.Entities\Contracts.Entities.csproj", "{D84B5745-13EA-4D2E-91B1-704EA96E8F25}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contracts.Interfaces.Repository", "Contracts.Interfaces.Repository\Contracts.Interfaces.Repository.csproj", "{ABECC561-3757-4517-A38E-F461CA3E551F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contracts.Interfaces.Repository", "Contracts.Interfaces.Repository\Contracts.Interfaces.Repository.csproj", "{ABECC561-3757-4517-A38E-F461CA3E551F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contracts.Interfaces.Business", "Contracts.Interfaces.Business\Contracts.Interfaces.Business.csproj", "{77CB465B-8BEB-4A31-B906-8A85B4D60223}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contracts.Interfaces.Business", "Contracts.Interfaces.Business\Contracts.Interfaces.Business.csproj", "{77CB465B-8BEB-4A31-B906-8A85B4D60223}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "6 - Docs", "6 - Docs", "{542538E5-FBE7-4BF2-96A1-05624C6E40B2}"
+	ProjectSection(SolutionItems) = preProject
+		1 - GetInstance.txt = 1 - GetInstance.txt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

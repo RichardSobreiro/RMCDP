@@ -1,4 +1,4 @@
-﻿namespace Contracts.Entities
+﻿namespace Contracts.Entities.Instances
 {
     public class ReadyMixedConcrete
     {

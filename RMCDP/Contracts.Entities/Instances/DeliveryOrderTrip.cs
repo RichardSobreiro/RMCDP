@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Contracts.Entities
+namespace Contracts.Entities.Instances
 {
     public class DeliveryOrderTrip
     {
@@ -14,5 +14,8 @@ namespace Contracts.Entities
         public int Interval { get; set; }
         public int DischargeDuration { get; set; }
         public double Volume { get; set; }
+        public decimal Income { get; set; }
+        public decimal Cost { get; set; }
+        public Location Construction { get; set; }
     }
 }

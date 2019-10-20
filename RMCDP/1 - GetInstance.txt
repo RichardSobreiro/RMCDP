@@ -1,0 +1,7 @@
+1 - Get Delivery Orders by InstanceNumber and between dates range with incomes; X
+
+2 - Get Load Places by InstanceNumber; X
+
+3 - Get available vehicles by InstanceNumber with fixed and variable cost per distance travelled; X
+
+4 - Compute distance matrix; 
