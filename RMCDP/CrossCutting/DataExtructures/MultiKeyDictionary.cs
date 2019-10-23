@@ -51,9 +51,10 @@ namespace CrossCutting.DataExtructures
             }
         }
 
-        public bool TryGetValue(K primaryKey)
+        public bool TryGetValue(K primaryKey, L subKey, out V value)
         {
             bool result = false;
+            value = default(V);
             readerWriterLock.EnterUpgradeableReadLock();
 
             try
@@ -68,9 +69,16 @@ namespace CrossCutting.DataExtructures
 
                     try
                     {
-                        if (subDictionary.ContainsKey(primaryToSubkeyMapping[primaryKey]))
+                        if (subDictionary.ContainsKey(primaryToSubkeyMapping[primaryKey]) &&
+                            subDictionary.ContainsKey(primaryToSubkeyMapping[primaryKey]).Equals(subKey))
                         {
+                            value = baseDictionary[primaryKey];
                             result = true;
+                        }
+                        else
+                        {
+                            value = default(V);
+                            result = false;
                         }
                     }
                     finally

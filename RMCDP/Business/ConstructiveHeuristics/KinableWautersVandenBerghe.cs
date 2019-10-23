@@ -6,27 +6,27 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Business
+namespace Business.ConstructiveHeuristics
 {
-    public class Kinable
+    public class KinableWautersVandenBerghe
     {
         public void Execute(int instanceNumber, DateTime begin, DateTime end)
         {
-            List<DeliveryOrderTrip> deliveryOrders = deliveryOrderRepository.GetDeliveriesOrdersWithDeliveryOrderTrips(
-                instanceNumber,
-                begin,
-                end).
-                OrderBy(d => d.RequestedTime).ToList();
+            List<DeliveryOrderTrip> deliveryOrdersTrips = 
+                deliveryOrderRepository.GetDeliveriesOrdersWithDeliveryOrderTrips(
+                    instanceNumber,
+                    begin,
+                    end).
+                    OrderBy(d => d.RequestedTime).ToList();
 
             List<Location> loadPlaces = loadPlacesRepository.GetLoadPlacesWithVehicles(instanceNumber);
 
             MultiKeyDictionary<int, int, double> distances = new MultiKeyDictionary<int, int, double>();
 
+            ComputeDistancesForLoadPlaces(deliveryOrdersTrips, loadPlaces, distances);
+            ComputeDistancesForConstructions(deliveryOrdersTrips, loadPlaces, distances);
 
-
-
-            List<Trip> trips = BestFitConstructionHeuristic(deliveryOrders, loadPlaces);
-
+            List<Trip> trips = BestFitConstructionHeuristic(deliveryOrdersTrips, loadPlaces, distances);
         }
 
         public void ComputeDistancesForLoadPlaces(List<DeliveryOrderTrip> deliveryOrdersTrips,
@@ -36,17 +36,20 @@ namespace Business
             {
                 foreach (Location loadPlaceDestiny in loadPlaces)
                 {
-                    if(distances.TryGetValue())
-                    distances.Add(loadPlace.LocationId,
+                    distances.Add(
+                        loadPlace.LocationId,
                         loadPlaceDestiny.LocationId,
-                        loadPlace.GeoCordinates.GetDistanceTo(loadPlaceDestiny.GeoCordinates));
+                        loadPlace.GeoCordinates.GetDistanceTo(
+                            loadPlaceDestiny.GeoCordinates));
                 }
 
                 foreach (DeliveryOrderTrip deliveryOrdersTrip in deliveryOrdersTrips)
                 {
-                    distances.Add(loadPlace.LocationId,
+                    distances.Add(
+                        loadPlace.LocationId,
                         deliveryOrdersTrip.Construction.LocationId,
-                        loadPlace.GeoCordinates.GetDistanceTo(deliveryOrdersTrip.Construction.GeoCordinates));
+                        loadPlace.GeoCordinates.GetDistanceTo(
+                            deliveryOrdersTrip.Construction.GeoCordinates));
                 }
             }
         }
@@ -54,26 +57,30 @@ namespace Business
         public void ComputeDistancesForConstructions(List<DeliveryOrderTrip> deliveryOrdersTrips,
             List<Location> loadPlaces, MultiKeyDictionary<int, int, double> distances)
         {
-            foreach (Location loadPlace in loadPlaces)
+            foreach (DeliveryOrderTrip deliveryOrderTrip in deliveryOrdersTrips)
             {
                 foreach (Location loadPlaceDestiny in loadPlaces)
                 {
-                    distances.Add(loadPlace.LocationId,
+                    distances.Add(
+                        deliveryOrderTrip.Construction.LocationId,
                         loadPlaceDestiny.LocationId,
-                        loadPlace.GeoCordinates.GetDistanceTo(loadPlaceDestiny.GeoCordinates));
+                        deliveryOrderTrip.Construction.GeoCordinates.GetDistanceTo(
+                            loadPlaceDestiny.GeoCordinates));
                 }
 
-                foreach (Location construction in loadPlaces)
+                foreach (DeliveryOrderTrip deliveryOrderTripDestiny in deliveryOrdersTrips)
                 {
-                    distances.Add(loadPlace.LocationId,
-                        construction.LocationId,
-                        loadPlace.GeoCordinates.GetDistanceTo(construction.GeoCordinates));
+                    distances.Add(
+                        deliveryOrderTrip.Construction.LocationId,
+                        deliveryOrderTripDestiny.Construction.LocationId,
+                        deliveryOrderTrip.Construction.GeoCordinates.GetDistanceTo(
+                            deliveryOrderTripDestiny.Construction.GeoCordinates));
                 }
             }
         }
 
         public List<Trip> BestFitConstructionHeuristic(List<DeliveryOrderTrip> deliveryOrdersTrips, 
-            List<Location> loadPlaces)
+            List<Location> loadPlaces, MultiKeyDictionary<int, int, double> distances)
         {
             List<Trip> trips = new List<Trip>();
 
@@ -85,7 +92,7 @@ namespace Business
             return trips;
         }
 
-        public Kinable(IDeliveryOrderRepository _deliveryOrderRepository, ILoadPlacesRepository _loadPlacesRepository)
+        public KinableWautersVandenBerghe(IDeliveryOrderRepository _deliveryOrderRepository, ILoadPlacesRepository _loadPlacesRepository)
         {
             deliveryOrderRepository = _deliveryOrderRepository;
             loadPlacesRepository = _loadPlacesRepository;
