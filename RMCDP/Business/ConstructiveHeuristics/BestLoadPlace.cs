@@ -29,6 +29,8 @@ namespace Business.ConstructiveHeuristics
 
             List<Trip> trips = BestFitConstructionHeuristic(deliveryOrdersTrips, 
                 loadPlaces, distances, instanceNumber);
+
+
         }
 
         public void ComputeDistancesForLoadPlaces(List<DeliveryOrderTrip> deliveryOrdersTrips,
@@ -126,7 +128,6 @@ namespace Business.ConstructiveHeuristics
                     resultTrip.Income = deliveryOrderTrip.Income;
                     resultTrip.Volume = deliveryOrderTrip.Volume;
 
-                    resultTrip.Cost = 0;
                     resultTrip.InitialLoadTime = bestInitialLoadTime;
                     resultTrip.FinalLoadTime = resultTrip.InitialLoadTime.Add(
                         TimeSpan.FromMinutes(resultTrip.Volume * loadPlaceMinDistance.RateRMCProduction));
@@ -143,11 +144,20 @@ namespace Business.ConstructiveHeuristics
                     resultTrip.ArrivalTimeAtLoadPlace =
                         resultTrip.FinalUnloadTimeAtConstruction.Add(TimeSpan.FromMinutes(minDistance));
 
+                    loadPlaceMinDistance.Vehicles[vehicleId.Value].AddBeginOfLastTrip(resultTrip.InitialLoadTime);
+                    loadPlaceMinDistance.Vehicles[vehicleId.Value].AddEndOfLastTrip(resultTrip.ArrivalTimeAtLoadPlace);
+                    loadPlaceMinDistance.Vehicles[vehicleId.Value].AddLoadPlaceIdOfLastTrip(deliveryOrderTrip.DeliveryOrderTripId);
+
+                    resultTrip.Cost =
+                        (decimal)(minDistance * loadPlaceMinDistance.Vehicles[vehicleId.Value].MaintenanceCostPerKm) +
+                        (decimal)(2 * (minDistance / loadPlaceMinDistance.Vehicles[vehicleId.Value].FuelConsumptionKmPerLiter) * 
+                            loadPlaceMinDistance.FuelCost);
+
+                    resultTrip.Income = deliveryOrderTrip.Income - resultTrip.Cost - deliveryOrderTrip.RMCCost;
+
                     resultTrip.WaitTimeAtLoadPlace = TimeSpan.MinValue;
                     resultTrip.WaitTimeAfterArrivalAtConstruction = TimeSpan.MinValue;
                     resultTrip.WaitTimeAfterUnloadAtConstruction = TimeSpan.MinValue;
-
-
 
                     trips.Add(resultTrip);
                 }

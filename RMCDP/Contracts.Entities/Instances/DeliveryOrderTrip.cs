@@ -15,7 +15,7 @@ namespace Contracts.Entities.Instances
         public int DischargeDuration { get; set; }
         public double Volume { get; set; }
         public decimal Income { get; set; }
-        public decimal Cost { get; set; }
+        public decimal RMCCost { get; set; }
         public Location Construction { get; set; }
     }
 }

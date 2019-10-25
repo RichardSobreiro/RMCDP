@@ -12,8 +12,9 @@ namespace Contracts.Entities.Instances
         public int? ReferenceNumber { get; set; }
         public int InstanceNumber { get; set; }
         public int RateRMCProduction { get; set; } = 1;
+        public double FuelCost { get; set; } = 4d;
 
-        public List<Vehicle> Vehicles { get; set; }
+        public Dictionary<int, Vehicle> Vehicles { get; set; }
         public GeoCoordinate GeoCordinates { get { return new GeoCoordinate(Latitude, Longitude); } }
     }
 }

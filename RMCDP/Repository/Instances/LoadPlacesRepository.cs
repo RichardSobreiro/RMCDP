@@ -39,10 +39,10 @@ namespace Repository.Instances
                         if (!deliveryOrdersDictionary.TryGetValue(lc.LocationId, out loadPlace))
                         {
                             loadPlace = lc;
-                            loadPlace.Vehicles = new List<Vehicle>();
+                            loadPlace.Vehicles = new Dictionary<int, Vehicle>();
                         }
 
-                        loadPlace.Vehicles.Add(v);
+                        loadPlace.Vehicles.Add(v.VehicleId, v);
 
                         return lc;
                     },

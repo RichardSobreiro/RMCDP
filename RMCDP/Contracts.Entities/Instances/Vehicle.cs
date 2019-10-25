@@ -8,8 +8,8 @@ namespace Contracts.Entities.Instances
     {
         public int VehicleId { get; set; }
         public int LoadPlaceId { get; set; }
-        public decimal MaintenanceCostPerKm { get; set; }
-        public decimal FuelConsumptionPerKm { get; set; }
+        public double MaintenanceCostPerKm { get; set; } = 0.1d;
+        public double FuelConsumptionKmPerLiter { get; set; } = 4d;
         public bool Available { get; set; }
 
         List<DateTime?> EndOfLastTrip { get; set; }

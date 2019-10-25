@@ -24,7 +24,7 @@ namespace Repository.Instances
             query.Append("dlot.\"Volume\", ");
             query.Append("dlot.\"ClientId\", ");
             query.Append("dlot.\"Income\", ");
-            query.Append("dlot.\"Cost\", ");
+            query.Append("dlot.\"Cost\" AS RMCCost, ");
             query.Append("const.\"LocationId\", ");
             query.Append("const.\"InstanceNumber\", ");
             query.Append("const.\"Latitude\", ");

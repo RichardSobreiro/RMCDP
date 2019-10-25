@@ -1,6 +1,6 @@
 ﻿using Contracts.Entities.Instances;
 using System;
-using System.Linq;
+using System.Collections.Generic;
 
 namespace Business.Extensions
 {
@@ -13,15 +13,15 @@ namespace Business.Extensions
             TimeSpan? waitTime = TimeSpan.MaxValue;
             int? selectedVehicleIndex = 0;
             int index = 0;
-            foreach (Vehicle vehicle in loadPlace.Vehicles)
+            foreach (KeyValuePair<int, Vehicle> vehicle in loadPlace.Vehicles)
             {
-                DateTime? currentVehicleAvailableTime = vehicle.GetEndOfLastTrip();
+                DateTime? currentVehicleAvailableTime = vehicle.Value.GetEndOfLastTrip();
                 if (!(currentVehicleAvailableTime.HasValue) ||
                     (currentVehicleAvailableTime.HasValue &&
                     currentVehicleAvailableTime <= requestedInitialLoadTime &&
                     (currentVehicleAvailableTime - requestedInitialLoadTime) < waitTime))
                 {
-                    vehicleId = vehicle.VehicleId;
+                    vehicleId = vehicle.Value.VehicleId;
                     waitTime = currentVehicleAvailableTime.HasValue ? 
                         currentVehicleAvailableTime.Value - requestedInitialLoadTime : TimeSpan.MinValue;
                     selectedVehicleIndex = index;
