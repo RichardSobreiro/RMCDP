@@ -12,6 +12,9 @@ namespace Contracts.Entities.Instances
         public decimal FuelConsumptionPerKm { get; set; }
         public bool Available { get; set; }
 
+        List<DateTime?> EndOfLastTrip { get; set; }
+        List<DateTime?> BeginOfLastTrip { get; set; }
+        List<int?> LoadPlaceIdOfLastTrip { get; set; }
         public DateTime? GetEndOfLastTrip()
         {
             return EndOfLastTrip.Last();
@@ -20,8 +23,6 @@ namespace Contracts.Entities.Instances
         {
             EndOfLastTrip.Add(value);
         }
-        List<DateTime> EndOfLastTrip { get; set; }
-
         public DateTime? GetBeginOfLastTrip()
         {
             return BeginOfLastTrip.Last();
@@ -30,8 +31,6 @@ namespace Contracts.Entities.Instances
         {
             BeginOfLastTrip.Add(value);
         }
-        List<DateTime> BeginOfLastTrip { get; set; }
-
         public int? GetLoadPlaceIdOfLastTrip()
         {
             return LoadPlaceIdOfLastTrip.Last();
@@ -40,6 +39,5 @@ namespace Contracts.Entities.Instances
         {
             LoadPlaceIdOfLastTrip.Add(value);
         }
-        List<int> LoadPlaceIdOfLastTrip { get; set; }
     }
 }

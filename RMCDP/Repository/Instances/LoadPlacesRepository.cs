@@ -10,7 +10,7 @@ namespace Repository.Instances
 {
     public class LoadPlacesRepository : ILoadPlacesRepository
     {
-        public List<Location> GetLoadPlacesWithVehicles(int instanceNumber)
+        public Dictionary<int, Location> GetLoadPlacesWithVehicles(int instanceNumber)
         {
             StringBuilder query = new StringBuilder("");
             query.Append("SELECT ");
@@ -31,7 +31,7 @@ namespace Repository.Instances
             using (NpgsqlConnection connection = new NpgsqlConnection(
                 _configuration.GetValue<string>("ConnectionStrings:READYMIXEDCONCRETEDELIVERYPROBLEMDB")))
             {
-                return connection.Query<Location, Vehicle, Location>(
+                connection.Query<Location, Vehicle, Location>(
                     query.ToString(),
                     (lc, v) =>
                     {
@@ -47,7 +47,8 @@ namespace Repository.Instances
                         return lc;
                     },
                     param: new { InstanceNumber = instanceNumber },
-                    splitOn: "VehicleId").AsList();
+                    splitOn: "VehicleId");
+                return deliveryOrdersDictionary;
             }
         }
 

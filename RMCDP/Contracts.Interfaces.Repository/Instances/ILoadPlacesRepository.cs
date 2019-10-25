@@ -5,6 +5,6 @@ namespace Contracts.Interfaces.Repository.Instances
 {
     public interface ILoadPlacesRepository
     {
-        List<Location> GetLoadPlacesWithVehicles(int instanceNumber);
+        Dictionary<int, Location> GetLoadPlacesWithVehicles(int instanceNumber);
     }
 }

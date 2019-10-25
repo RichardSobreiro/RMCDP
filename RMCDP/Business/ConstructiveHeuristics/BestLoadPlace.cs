@@ -1,4 +1,5 @@
-﻿using Contracts.Entities.Instances;
+﻿using Business.Extensions;
+using Contracts.Entities.Instances;
 using Contracts.Entities.Results;
 using Contracts.Interfaces.Repository.Instances;
 using CrossCutting.DataExtructures;
@@ -19,7 +20,7 @@ namespace Business.ConstructiveHeuristics
                     end).
                     OrderBy(d => d.RequestedTime).ToList();
 
-            List<Location> loadPlaces = loadPlacesRepository.GetLoadPlacesWithVehicles(instanceNumber);
+            Dictionary<int, Location> loadPlaces = loadPlacesRepository.GetLoadPlacesWithVehicles(instanceNumber);
 
             MultiKeyDictionary<int, int, double> distances = new MultiKeyDictionary<int, int, double>();
 
@@ -31,42 +32,42 @@ namespace Business.ConstructiveHeuristics
         }
 
         public void ComputeDistancesForLoadPlaces(List<DeliveryOrderTrip> deliveryOrdersTrips,
-            List<Location> loadPlaces, MultiKeyDictionary<int, int, double> distances)
+            Dictionary<int, Location> loadPlaces, MultiKeyDictionary<int, int, double> distances)
         {
-            foreach (Location loadPlace in loadPlaces)
+            foreach (KeyValuePair<int, Location> loadPlace in loadPlaces)
             {
-                foreach (Location loadPlaceDestiny in loadPlaces)
+                foreach (KeyValuePair<int, Location> loadPlaceDestiny in loadPlaces)
                 {
                     distances.Add(
-                        loadPlace.LocationId,
-                        loadPlaceDestiny.LocationId,
-                        loadPlace.GeoCordinates.GetDistanceTo(
-                            loadPlaceDestiny.GeoCordinates));
+                        loadPlace.Value.LocationId,
+                        loadPlaceDestiny.Value.LocationId,
+                        loadPlace.Value.GeoCordinates.GetDistanceTo(
+                            loadPlaceDestiny.Value.GeoCordinates));
                 }
 
                 foreach (DeliveryOrderTrip deliveryOrdersTrip in deliveryOrdersTrips)
                 {
                     distances.Add(
-                        loadPlace.LocationId,
+                        loadPlace.Value.LocationId,
                         deliveryOrdersTrip.Construction.LocationId,
-                        loadPlace.GeoCordinates.GetDistanceTo(
+                        loadPlace.Value.GeoCordinates.GetDistanceTo(
                             deliveryOrdersTrip.Construction.GeoCordinates));
                 }
             }
         }
 
         public void ComputeDistancesForConstructions(List<DeliveryOrderTrip> deliveryOrdersTrips,
-            List<Location> loadPlaces, MultiKeyDictionary<int, int, double> distances)
+            Dictionary<int, Location> loadPlaces, MultiKeyDictionary<int, int, double> distances)
         {
             foreach (DeliveryOrderTrip deliveryOrderTrip in deliveryOrdersTrips)
             {
-                foreach (Location loadPlaceDestiny in loadPlaces)
+                foreach (KeyValuePair<int, Location> loadPlaceDestiny in loadPlaces)
                 {
                     distances.Add(
                         deliveryOrderTrip.Construction.LocationId,
-                        loadPlaceDestiny.LocationId,
+                        loadPlaceDestiny.Value.LocationId,
                         deliveryOrderTrip.Construction.GeoCordinates.GetDistanceTo(
-                            loadPlaceDestiny.GeoCordinates));
+                            loadPlaceDestiny.Value.GeoCordinates));
                 }
 
                 foreach (DeliveryOrderTrip deliveryOrderTripDestiny in deliveryOrdersTrips)
@@ -81,7 +82,7 @@ namespace Business.ConstructiveHeuristics
         }
 
         public List<Trip> BestFitConstructionHeuristic(List<DeliveryOrderTrip> deliveryOrdersTrips,
-            List<Location> loadPlaces, MultiKeyDictionary<int, int, double> distances,
+            Dictionary<int, Location> loadPlaces, MultiKeyDictionary<int, int, double> distances,
             int instanceNumber)
         {
             List<Trip> trips = new List<Trip>();
@@ -91,27 +92,66 @@ namespace Business.ConstructiveHeuristics
                 Trip resultTrip = new Trip();
 
                 double minDistance = double.MaxValue;
-                int? loadPlaceIdMinDistance = null;
+                Location loadPlaceMinDistance = null;
                 double currentDistance;
-                foreach (Location loadPlace in loadPlaces)
+                foreach (KeyValuePair<int , Location> loadPlace in loadPlaces)
                 {
                     if(distances.TryGetValue(
                         deliveryOrderTrip.Construction.LocationId, 
-                        loadPlace.LocationId, 
+                        loadPlace.Value.LocationId, 
                         out currentDistance))
                     {
                         if (currentDistance < minDistance)
                         {
                             minDistance = currentDistance;
-                            loadPlaceIdMinDistance = loadPlace.LocationId;
+                            loadPlaceMinDistance = loadPlace.Value;
                         }
                     }
                 }
 
-                resultTrip.LoadPlaceId = loadPlaceIdMinDistance.Value;
                 resultTrip.InstanceNumber = instanceNumber;
+                resultTrip.LocationIdLoadPlace = loadPlaceMinDistance.LocationId;
+                DateTime bestInitialLoadTime = deliveryOrderTrip.GetBestInitialLoadTime(loadPlaceMinDistance,
+                    TimeSpan.FromMinutes(minDistance));
+                int? vehicleId = loadPlaceMinDistance.GetFirstVehicleAvailebleBeforeTime(
+                    bestInitialLoadTime);
 
-                trips.Add(resultTrip);
+                if (vehicleId.HasValue)
+                {
+                    resultTrip.InstanceNumber = instanceNumber;
+                    resultTrip.LocationIdLoadPlace = loadPlaceMinDistance.LocationId;
+                    resultTrip.LocationIdConstruction = deliveryOrderTrip.ConstructionId;
+                    resultTrip.VehicleId = vehicleId.Value;
+                    resultTrip.DesiredRequestedTime = deliveryOrderTrip.RequestedTime;
+                    resultTrip.Income = deliveryOrderTrip.Income;
+                    resultTrip.Volume = deliveryOrderTrip.Volume;
+
+                    resultTrip.Cost = 0;
+                    resultTrip.InitialLoadTime = bestInitialLoadTime;
+                    resultTrip.FinalLoadTime = resultTrip.InitialLoadTime.Add(
+                        TimeSpan.FromMinutes(resultTrip.Volume * loadPlaceMinDistance.RateRMCProduction));
+                    resultTrip.DepartureTimeFromLoadPlace = 
+                        resultTrip.FinalLoadTime.Add(TimeSpan.FromMinutes(5));
+                    resultTrip.ArrivalTimeAtConstruction = 
+                        resultTrip.DepartureTimeFromLoadPlace.Add(TimeSpan.FromMinutes(minDistance));
+                    resultTrip.InitialUnloadTimeAtConstruction = 
+                        resultTrip.ArrivalTimeAtConstruction.Add(TimeSpan.FromMinutes(5));
+                    resultTrip.FinalUnloadTimeAtConstruction =
+                        resultTrip.InitialUnloadTimeAtConstruction.Add(TimeSpan.FromMinutes(20));
+                    resultTrip.DepartureTimeFromConstruction =
+                        resultTrip.FinalUnloadTimeAtConstruction.Add(TimeSpan.FromMinutes(5));
+                    resultTrip.ArrivalTimeAtLoadPlace =
+                        resultTrip.FinalUnloadTimeAtConstruction.Add(TimeSpan.FromMinutes(minDistance));
+
+                    resultTrip.WaitTimeAtLoadPlace = TimeSpan.MinValue;
+                    resultTrip.WaitTimeAfterArrivalAtConstruction = TimeSpan.MinValue;
+                    resultTrip.WaitTimeAfterUnloadAtConstruction = TimeSpan.MinValue;
+
+
+
+                    trips.Add(resultTrip);
+                }
+
             }
 
             return trips;
