@@ -24,17 +24,17 @@ namespace Repository.Instances
             query.Append("dlot.\"Volume\", ");
             query.Append("dlot.\"ClientId\", ");
             query.Append("dlot.\"Income\", ");
-            query.Append("dlot.\"Cost\" AS RMCCost, ");
+            query.Append("dlot.\"RMCCost\", ");
             query.Append("const.\"LocationId\", ");
             query.Append("const.\"InstanceNumber\", ");
             query.Append("const.\"Latitude\", ");
             query.Append("const.\"Longitude\" ");
             query.Append("FROM ");
-            query.Append("public.\"DeliveryOrderTrip\" AS dlot");
-            query.Append("INNER JOIN public.\"Location\" AS const ON const.\"LocationId\" = dlot.\"LocationId\" AND const.Kind = 2");
-            query.Append("WHERE dlo.\"InstanceNumber\" = @InstanceNumber");
-            query.Append("AND dlo.\"RequestedTime\" >= @Begin");
-            query.Append("AND dlo.\"RequestedTime\" <= @End");
+            query.Append("public.\"DeliveryOrderTrip\" AS dlot ");
+            query.Append("INNER JOIN public.\"Location\" AS const ON const.\"LocationId\" = dlot.\"LocationId\" AND const.\"Kind\" = 2 ");
+            query.Append("WHERE dlot.\"InstanceNumber\" = @InstanceNumber ");
+            query.Append("AND dlot.\"RequestedTime\" >= @Begin ");
+            query.Append("AND dlot.\"RequestedTime\" <= @End ");
 
             Dictionary<int, DeliveryOrderTrip> deliveryOrdersDictionary = new Dictionary<int, DeliveryOrderTrip>();
             using (NpgsqlConnection connection = new NpgsqlConnection(

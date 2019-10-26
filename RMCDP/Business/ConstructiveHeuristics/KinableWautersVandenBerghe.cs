@@ -10,7 +10,7 @@ namespace Business.ConstructiveHeuristics
 {
     public class KinableWautersVandenBerghe
     {
-        public void Execute(int instanceNumber, DateTime begin, DateTime end)
+        /*public void Execute(int instanceNumber, DateTime begin, DateTime end)
         {
             List<DeliveryOrderTrip> deliveryOrdersTrips = 
                 deliveryOrderRepository.GetDeliveriesOrdersWithDeliveryOrderTrips(
@@ -96,7 +96,7 @@ namespace Business.ConstructiveHeuristics
         {
             deliveryOrderRepository = _deliveryOrderRepository;
             loadPlacesRepository = _loadPlacesRepository;
-        }
+        }*/
 
         private IDeliveryOrderRepository deliveryOrderRepository;
         private ILoadPlacesRepository loadPlacesRepository;

@@ -17,27 +17,34 @@ namespace Contracts.Entities.Instances
         List<int?> LoadPlaceIdOfLastTrip { get; set; }
         public DateTime? GetEndOfLastTrip()
         {
-            return EndOfLastTrip.Last();
+            return EndOfLastTrip.Any() ? EndOfLastTrip?.Last() : null;
         }
         public void AddEndOfLastTrip(DateTime value)
         {
-            EndOfLastTrip.Add(value);
+            EndOfLastTrip?.Add(value);
         }
         public DateTime? GetBeginOfLastTrip()
         {
-            return BeginOfLastTrip.Last();
+            return BeginOfLastTrip.Any() ? BeginOfLastTrip?.Last() : null;
         }
         public void AddBeginOfLastTrip(DateTime value)
         {
-            BeginOfLastTrip.Add(value);
+            BeginOfLastTrip?.Add(value);
         }
         public int? GetLoadPlaceIdOfLastTrip()
         {
-            return LoadPlaceIdOfLastTrip.Last();
+            return LoadPlaceIdOfLastTrip.Any() ? LoadPlaceIdOfLastTrip?.Last() : null;
         }
         public void AddLoadPlaceIdOfLastTrip(int value)
         {
-            LoadPlaceIdOfLastTrip.Add(value);
+            LoadPlaceIdOfLastTrip?.Add(value);
+        }
+
+        public Vehicle()
+        {
+            EndOfLastTrip = new List<DateTime?>();
+            BeginOfLastTrip = new List<DateTime?>();
+            LoadPlaceIdOfLastTrip = new List<int?>();
         }
     }
 }

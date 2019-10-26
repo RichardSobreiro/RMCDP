@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Contracts.Entities\Contracts.Entities.csproj" />
+    <ProjectReference Include="..\Contracts.Interfaces.Business\Contracts.Interfaces.Business.csproj" />
     <ProjectReference Include="..\Contracts.Interfaces.Repository\Contracts.Interfaces.Repository.csproj" />
     <ProjectReference Include="..\CrossCutting\CrossCutting.csproj" />
   </ItemGroup>

@@ -8,7 +8,6 @@ namespace Contracts.Entities.Instances
         public int InstanceNumber { get; set; }
         public int DeliveryOrderId { get; set; }
         public int ClientId { get; set; }
-        public int ConstructionId { get; set; }
         public int ReadyMixedConcreteId { get; set; }
         public DateTime RequestedTime { get; set; }
         public int Interval { get; set; }

@@ -21,13 +21,12 @@ namespace Repository.Instances
             query.Append("lc.\"ReferenceNumber\", ");
             query.Append("v.\"VehicleId\", ");
             query.Append("v.\"MaintenanceCostPerKm\", ");
-            query.Append("v.\"FuelConsumptionPerKm\", ");
-            query.Append("FROM ");
-            query.Append("public.\"Location\" AS lc");
-            query.Append("INNER JOIN public.\"Vehicle\" AS v ON v.\"LocationId\" = lc.\"LocationId\"");
-            query.Append("WHERE lp.\"InstanceNumber\" = @InstanceNumber AND lc.\"Kind\" = 1");
+            query.Append("v.\"FuelConsumptionPerKm\" ");
+            query.Append("FROM public.\"Location\" AS lc ");
+            query.Append("INNER JOIN public.\"Vehicle\" AS v ON v.\"LocationId\" = lc.\"LocationId\" ");
+            query.Append("WHERE lc.\"InstanceNumber\" = @InstanceNumber AND lc.\"Kind\" = 1 ");
 
-            Dictionary<int, Location> deliveryOrdersDictionary = new Dictionary<int, Location>();
+            Dictionary<int, Location> loadPlacesDictionary = new Dictionary<int, Location>();
             using (NpgsqlConnection connection = new NpgsqlConnection(
                 _configuration.GetValue<string>("ConnectionStrings:READYMIXEDCONCRETEDELIVERYPROBLEMDB")))
             {
@@ -36,10 +35,11 @@ namespace Repository.Instances
                     (lc, v) =>
                     {
                         Location loadPlace;
-                        if (!deliveryOrdersDictionary.TryGetValue(lc.LocationId, out loadPlace))
+                        if (!loadPlacesDictionary.TryGetValue(lc.LocationId, out loadPlace))
                         {
                             loadPlace = lc;
                             loadPlace.Vehicles = new Dictionary<int, Vehicle>();
+                            loadPlacesDictionary.Add(loadPlace.LocationId, loadPlace);
                         }
 
                         loadPlace.Vehicles.Add(v.VehicleId, v);
@@ -48,7 +48,7 @@ namespace Repository.Instances
                     },
                     param: new { InstanceNumber = instanceNumber },
                     splitOn: "VehicleId");
-                return deliveryOrdersDictionary;
+                return loadPlacesDictionary;
             }
         }
 
