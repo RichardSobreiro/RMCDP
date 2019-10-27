@@ -16,5 +16,8 @@ namespace Contracts.Entities.Instances
         public decimal Income { get; set; }
         public decimal RMCCost { get; set; }
         public Location Construction { get; set; }
+
+        public DateTime RequestedTimeEndWindow { get { return RequestedTime.AddMinutes(20); } }
+        public double rho { get; set; }
     }
 }

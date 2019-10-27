@@ -36,15 +36,17 @@ namespace ConsoleApp
                 DateTime begin = new DateTime(2019, 1, 2, 0, 0, 0);
                 DateTime end = new DateTime(2019, 1, 3, 0, 0, 0);
 
-                bestLoadPlace.Execute(grandeCentroId, begin, end);
+                behrouzAlireza.Execute(grandeCentroId, begin, end);
             }
 
-            public ConsoleApplication(IBestLoadPlaceFit _bestLoadPlace)
+            public ConsoleApplication(IBestLoadPlaceFit _bestLoadPlace, IBehrouzAlireza _behrouzAlireza)
             {
                 bestLoadPlace = _bestLoadPlace;
+                behrouzAlireza = _behrouzAlireza;
             }
 
             private IBestLoadPlaceFit bestLoadPlace;
+            private IBehrouzAlireza behrouzAlireza;
         }
 
         private static IServiceCollection ConfigureServices()
@@ -57,6 +59,7 @@ namespace ConsoleApp
             services.AddScoped<ILoadPlacesRepository, LoadPlacesRepository>();
 
             services.AddScoped<IBestLoadPlaceFit, BestLoadPlaceFit>();
+            services.AddScoped<IBehrouzAlireza, BehrouzAlireza>();
 
             services.AddTransient<ConsoleApplication>();
             return services;

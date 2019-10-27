@@ -1,4 +1,5 @@
-﻿using Business.Extensions;
+﻿using Business.Base;
+using Business.Extensions;
 using Business.Extensions.ValueTypes;
 using Contracts.Entities.Instances;
 using Contracts.Entities.Results;
@@ -7,30 +8,18 @@ using Contracts.Interfaces.Repository.Instances;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace Business.ConstructiveHeuristics
 {
-    public class BestLoadPlaceFit : IBestLoadPlaceFit
+    public class BestLoadPlaceFit : BaseBusiness, IBestLoadPlaceFit
     {
         public void Execute(int instanceNumber, DateTime begin, DateTime end)
         {
             StringBuilder log = new StringBuilder();
-
-            List<DeliveryOrderTrip> deliveryOrdersTrips =
-                deliveryOrderRepository.GetDeliveriesOrdersWithDeliveryOrderTrips(
-                    instanceNumber,
-                    begin,
-                    end).
-                    OrderBy(d => d.RequestedTime).ToList();
-
-            Dictionary<int, Location> loadPlaces = loadPlacesRepository.GetLoadPlacesWithVehicles(instanceNumber);
-
-            Dictionary<string, double> distances = new Dictionary<string, double>();
-
-            ComputeDistancesForLoadPlaces(deliveryOrdersTrips, loadPlaces, distances);
-            ComputeDistancesForConstructions(deliveryOrdersTrips, loadPlaces, distances);
+            List<DeliveryOrderTrip> deliveryOrdersTrips = GetDeliveriesOrdersWithDeliveryOrderTrips(instanceNumber, begin, end);
+            Dictionary<int, Location> loadPlaces = GetLoadPlacesWithVehicles(instanceNumber);
+            Dictionary<string, double> distances = ComputeDistances(log, instanceNumber, begin, end, deliveryOrdersTrips, loadPlaces);
 
             decimal totalIncome = 0;
             List<Trip> trips = BestFitConstructionHeuristic(log, deliveryOrdersTrips, 
@@ -38,78 +27,9 @@ namespace Business.ConstructiveHeuristics
 
             Console.WriteLine($"Total Income: {totalIncome}");
             
-            File.WriteAllText(Directory.GetCurrentDirectory() + $"/Logs-{instanceNumber}.txt", "");
-            File.AppendAllText(Directory.GetCurrentDirectory() + $"/Logs-{instanceNumber}.txt", log.ToString());
+            File.WriteAllText(Directory.GetCurrentDirectory() + $"/Logs-BestLoadPlaceFit-{instanceNumber}.txt", "");
+            File.AppendAllText(Directory.GetCurrentDirectory() + $"/Logs-BestLoadPlaceFit-{instanceNumber}.txt", log.ToString());
             log.Clear();
-        }
-
-        public void ComputeDistancesForLoadPlaces(List<DeliveryOrderTrip> deliveryOrdersTrips,
-            Dictionary<int, Location> loadPlaces, Dictionary<string, double> distances)
-        {
-            foreach (KeyValuePair<int, Location> loadPlace in loadPlaces)
-            {
-                foreach (KeyValuePair<int, Location> loadPlaceDestiny in loadPlaces)
-                {
-                    distances.Add(
-                        loadPlace.Value.LocationId.Format(loadPlaceDestiny.Value.LocationId),
-                        (loadPlace.Value.GeoCordinates.GetDistanceTo(
-                            loadPlaceDestiny.Value.GeoCordinates)
-                        ) / 1000
-                        );
-                }
-
-                foreach (DeliveryOrderTrip deliveryOrdersTrip in deliveryOrdersTrips)
-                {
-                    double distance;
-                    if(!distances.TryGetValue(loadPlace.Value.LocationId.Format(deliveryOrdersTrip.Construction.LocationId),
-                        out distance))
-                    {
-                        distances.Add(
-                            loadPlace.Value.LocationId.Format(deliveryOrdersTrip.Construction.LocationId),
-                            (loadPlace.Value.GeoCordinates.GetDistanceTo(
-                                deliveryOrdersTrip.Construction.GeoCordinates)
-                            ) / 1000
-                            );
-                    }
-                }
-            }
-        }
-
-        public void ComputeDistancesForConstructions(List<DeliveryOrderTrip> deliveryOrdersTrips,
-            Dictionary<int, Location> loadPlaces, Dictionary<string, double> distances)
-        {
-            foreach (DeliveryOrderTrip deliveryOrderTrip in deliveryOrdersTrips)
-            {
-                foreach (KeyValuePair<int, Location> loadPlaceDestiny in loadPlaces)
-                {
-                    double distance;
-                    if (!distances.TryGetValue(
-                        deliveryOrderTrip.Construction.LocationId.Format(loadPlaceDestiny.Value.LocationId),
-                        out distance))
-                    {
-                        distances.Add(
-                            deliveryOrderTrip.Construction.LocationId.Format(loadPlaceDestiny.Value.LocationId),
-                            (deliveryOrderTrip.Construction.GeoCordinates.GetDistanceTo(
-                                loadPlaceDestiny.Value.GeoCordinates)
-                            ) / 1000);
-                    }
-                }
-
-                foreach (DeliveryOrderTrip deliveryOrderTripDestiny in deliveryOrdersTrips)
-                {
-                    double distance;
-                    if (!distances.TryGetValue(
-                        deliveryOrderTrip.Construction.LocationId.Format(deliveryOrderTripDestiny.Construction.LocationId),
-                        out distance))
-                    {
-                        distances.Add(
-                            deliveryOrderTrip.Construction.LocationId.Format(deliveryOrderTripDestiny.Construction.LocationId),
-                            (deliveryOrderTrip.Construction.GeoCordinates.GetDistanceTo(
-                                deliveryOrderTripDestiny.Construction.GeoCordinates)
-                            ) / 1000);
-                    }
-                }
-            }
         }
 
         public List<Trip> BestFitConstructionHeuristic(StringBuilder log,
@@ -212,7 +132,8 @@ namespace Business.ConstructiveHeuristics
             return trips;
         }
 
-        public BestLoadPlaceFit(IDeliveryOrderRepository _deliveryOrderRepository, ILoadPlacesRepository _loadPlacesRepository)
+        public BestLoadPlaceFit(IDeliveryOrderRepository _deliveryOrderRepository, 
+            ILoadPlacesRepository _loadPlacesRepository) : base(_deliveryOrderRepository, _loadPlacesRepository)
         {
             deliveryOrderRepository = _deliveryOrderRepository;
             loadPlacesRepository = _loadPlacesRepository;

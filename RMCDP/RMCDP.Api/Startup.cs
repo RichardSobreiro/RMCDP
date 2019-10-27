@@ -1,10 +1,11 @@
-﻿using Contracts.Interfaces.Repository.Instances;
+﻿using Business.ConstructiveHeuristics;
+using Contracts.Interfaces.Business;
+using Contracts.Interfaces.Repository.Instances;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Repository;
 using Repository.Instances;
 
 namespace RMCDP.Api
@@ -25,6 +26,9 @@ namespace RMCDP.Api
 
             services.AddScoped<IDeliveryOrderRepository, DeliveryOrderRepository>();
             services.AddScoped<ILoadPlacesRepository, LoadPlacesRepository>();
+
+            services.AddScoped<IBestLoadPlaceFit, BestLoadPlaceFit>();
+            services.AddScoped<IBehrouzAlireza, BehrouzAlireza>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -36,7 +40,6 @@ namespace RMCDP.Api
             }
             else
             {
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
