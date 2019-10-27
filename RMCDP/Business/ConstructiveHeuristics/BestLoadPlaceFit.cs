@@ -4,10 +4,11 @@ using Contracts.Entities.Instances;
 using Contracts.Entities.Results;
 using Contracts.Interfaces.Business;
 using Contracts.Interfaces.Repository.Instances;
-using CrossCutting.DataExtructures;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace Business.ConstructiveHeuristics
 {
@@ -15,6 +16,8 @@ namespace Business.ConstructiveHeuristics
     {
         public void Execute(int instanceNumber, DateTime begin, DateTime end)
         {
+            StringBuilder log = new StringBuilder();
+
             List<DeliveryOrderTrip> deliveryOrdersTrips =
                 deliveryOrderRepository.GetDeliveriesOrdersWithDeliveryOrderTrips(
                     instanceNumber,
@@ -29,10 +32,15 @@ namespace Business.ConstructiveHeuristics
             ComputeDistancesForLoadPlaces(deliveryOrdersTrips, loadPlaces, distances);
             ComputeDistancesForConstructions(deliveryOrdersTrips, loadPlaces, distances);
 
-            List<Trip> trips = BestFitConstructionHeuristic(deliveryOrdersTrips, 
-                loadPlaces, distances, instanceNumber);
+            decimal totalIncome = 0;
+            List<Trip> trips = BestFitConstructionHeuristic(log, deliveryOrdersTrips, 
+                loadPlaces, distances, instanceNumber, out totalIncome);
 
-
+            Console.WriteLine($"Total Income: {totalIncome}");
+            
+            File.WriteAllText(Directory.GetCurrentDirectory() + $"/Logs-{instanceNumber}.txt", "");
+            File.AppendAllText(Directory.GetCurrentDirectory() + $"/Logs-{instanceNumber}.txt", log.ToString());
+            log.Clear();
         }
 
         public void ComputeDistancesForLoadPlaces(List<DeliveryOrderTrip> deliveryOrdersTrips,
@@ -104,11 +112,13 @@ namespace Business.ConstructiveHeuristics
             }
         }
 
-        public List<Trip> BestFitConstructionHeuristic(List<DeliveryOrderTrip> deliveryOrdersTrips,
+        public List<Trip> BestFitConstructionHeuristic(StringBuilder log,
+            List<DeliveryOrderTrip> deliveryOrdersTrips,
             Dictionary<int, Location> loadPlaces, Dictionary<string, double> distances,
-            int instanceNumber)
+            int instanceNumber, out decimal TotalIncome)
         {
             List<Trip> trips = new List<Trip>();
+            decimal returnTotalIncome = 0;
 
             foreach (DeliveryOrderTrip deliveryOrderTrip in deliveryOrdersTrips)
             {
@@ -147,6 +157,8 @@ namespace Business.ConstructiveHeuristics
 
                 if (vehicleId.HasValue && resultTrip.Income > 0)
                 {
+                    returnTotalIncome += resultTrip.Income;
+
                     resultTrip.InstanceNumber = instanceNumber;
                     resultTrip.LocationIdLoadPlace = loadPlaceMinDistance.LocationId;
                     resultTrip.LocationIdConstruction = deliveryOrderTrip.Construction.LocationId;
@@ -185,10 +197,17 @@ namespace Business.ConstructiveHeuristics
                 }
                 else
                 {
-
+                    log.AppendLine($"DeliveryOrderTripId: {deliveryOrderTrip.DeliveryOrderTripId} - " +
+                        $"RequestedTime: {deliveryOrderTrip.RequestedTime} - " +
+                        $"LoadPlaceMinDistance: {loadPlaceMinDistance} - " +
+                        $"MinDistance: {minDistance} - " +
+                        $"BestInitialLoadTime: {bestInitialLoadTime} - " +
+                        $"Income: {resultTrip.Income}");
                 }
-
             }
+
+            TotalIncome = returnTotalIncome;
+            log.AppendLine($"Total Income: {TotalIncome}");
 
             return trips;
         }
