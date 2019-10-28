@@ -20,7 +20,7 @@ namespace Business.ConstructiveHeuristics
             Dictionary<string, double> distances = ComputeDistances(log, instanceNumber, begin, end, deliveryOrdersTrips, loadPlaces);
 
             Queue<DeliveryOrderTrip> sequenceOfCustomers = ConstructSequenceOfCustomers(deliveryOrdersTrips);
-
+            AssignimentOfVehicleTypes(loadPlaces);
 
         }
 
@@ -73,9 +73,9 @@ namespace Business.ConstructiveHeuristics
             return sequenceOfCustomers;
         }
 
-        private void AssignimentOfVehicleTypes()
+        private void AssignimentOfVehicleTypes(Dictionary<int, Location> loadPlaces)
         {
-
+            
         }
 
         public BehrouzAlireza(IDeliveryOrderRepository _deliveryOrderRepository, 

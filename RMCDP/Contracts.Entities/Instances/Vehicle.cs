@@ -11,6 +11,7 @@ namespace Contracts.Entities.Instances
         public double MaintenanceCostPerKm { get; set; } = 0.1d;
         public double FuelConsumptionKmPerLiter { get; set; } = 4d;
         public bool Available { get; set; }
+        public double Volume { get; set; } = 8;
 
         List<DateTime?> EndOfLastTrip { get; set; }
         List<DateTime?> BeginOfLastTrip { get; set; }
