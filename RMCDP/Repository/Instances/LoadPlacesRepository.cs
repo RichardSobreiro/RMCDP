@@ -21,6 +21,7 @@ namespace Repository.Instances
             query.Append("lc.\"ReferenceNumber\", ");
             query.Append("v.\"VehicleId\", ");
             query.Append("v.\"MaintenanceCostPerKm\", ");
+            query.Append("v.\"Volume\", ");
             query.Append("v.\"FuelConsumptionPerKm\" ");
             query.Append("FROM public.\"Location\" AS lc ");
             query.Append("INNER JOIN public.\"Vehicle\" AS v ON v.\"LocationId\" = lc.\"LocationId\" ");

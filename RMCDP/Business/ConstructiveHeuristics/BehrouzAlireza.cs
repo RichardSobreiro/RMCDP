@@ -1,6 +1,7 @@
 ﻿using Business.Base;
 using Contracts.Entities.Helpers;
 using Contracts.Entities.Instances;
+using Contracts.Entities.Results;
 using Contracts.Interfaces.Business;
 using Contracts.Interfaces.Repository.Instances;
 using System;
@@ -20,7 +21,10 @@ namespace Business.ConstructiveHeuristics
             Dictionary<string, double> distances = ComputeDistances(log, instanceNumber, begin, end, deliveryOrdersTrips, loadPlaces);
 
             Queue<DeliveryOrderTrip> sequenceOfCustomers = ConstructSequenceOfCustomers(deliveryOrdersTrips);
-            AssignimentOfVehicleTypes(loadPlaces);
+
+            List<RouteNode> routeNodes = AssignimentOfVehicleTypes(instanceNumber, loadPlaces, sequenceOfCustomers);
+
+            List<Route> routes = ConstructionOfRoutes(instanceNumber, routeNodes, sequenceOfCustomers);
 
         }
 
@@ -73,19 +77,53 @@ namespace Business.ConstructiveHeuristics
             return sequenceOfCustomers;
         }
 
-        private void AssignimentOfVehicleTypes(Dictionary<int, Location> loadPlaces)
+        private List<RouteNode> AssignimentOfVehicleTypes(int instanceNumber,
+            Dictionary<int, Location> loadPlaces, 
+            Queue<DeliveryOrderTrip> sequenceOfCustomers)
         {
-            
+            List<RouteNode> routeNodes = new List<RouteNode>();
+
+            foreach (DeliveryOrderTrip deliveryOrderTrip in sequenceOfCustomers)
+            {
+                routeNodes.Add(
+                    new RouteNode() 
+                    {
+                        InstanceNumber = instanceNumber,
+                        DeliveryOrderTripId = deliveryOrderTrip.DeliveryOrderTripId,
+                        VehicleType = 1,
+                        Volume = deliveryOrderTrip.Volume
+                    }
+                );
+            }
+
+            return new List<RouteNode>();
+        }
+
+        private List<Route> ConstructionOfRoutes(int instanceNumber,
+            List<RouteNode> routeNodes,
+            Queue<DeliveryOrderTrip> sequenceOfCustomers)
+        {
+            List<Route> routes = new List<Route>();
+            List<int> deliveryOrderTripsInRoutes = new List<int>();
+
+            foreach (DeliveryOrderTrip deliveryOrderTrip in sequenceOfCustomers)
+            {
+                if(!deliveryOrderTripsInRoutes.Any(d => d == deliveryOrderTrip.DeliveryOrderTripId))
+                {
+                    RouteNode routeNode = routeNodes.FirstOrDefault(rn => 
+                        rn.DeliveryOrderTripId == deliveryOrderTrip.DeliveryOrderTripId);
+
+
+                }
+            }
+
+            return routes;
         }
 
         public BehrouzAlireza(IDeliveryOrderRepository _deliveryOrderRepository, 
             ILoadPlacesRepository _loadPlacesRepository) : base(_deliveryOrderRepository, _loadPlacesRepository)
         {
-            deliveryOrderRepository = _deliveryOrderRepository;
-            loadPlacesRepository = _loadPlacesRepository;
-        }
 
-        private IDeliveryOrderRepository deliveryOrderRepository;
-        private ILoadPlacesRepository loadPlacesRepository;
+        }
     }
 }
