@@ -1,4 +1,5 @@
 ﻿using Business.Base;
+using Business.Extensions.ValueTypes;
 using Contracts.Entities.Helpers;
 using Contracts.Entities.Instances;
 using Contracts.Entities.Results;
@@ -22,9 +23,9 @@ namespace Business.ConstructiveHeuristics
 
             Queue<DeliveryOrderTrip> sequenceOfCustomers = ConstructSequenceOfCustomers(deliveryOrdersTrips);
 
-            List<RouteNode> routeNodes = AssignimentOfVehicleTypes(instanceNumber, loadPlaces, sequenceOfCustomers);
+            List<RouteNode> routeNodes = AssignimentOfVehicleTypes(instanceNumber, sequenceOfCustomers);
 
-            List<Route> routes = ConstructionOfRoutes(instanceNumber, routeNodes, sequenceOfCustomers);
+            List<Route> routes = ConstructionOfRoutes(instanceNumber, routeNodes, sequenceOfCustomers, distances);
 
         }
 
@@ -78,7 +79,6 @@ namespace Business.ConstructiveHeuristics
         }
 
         private List<RouteNode> AssignimentOfVehicleTypes(int instanceNumber,
-            Dictionary<int, Location> loadPlaces, 
             Queue<DeliveryOrderTrip> sequenceOfCustomers)
         {
             List<RouteNode> routeNodes = new List<RouteNode>();
@@ -90,8 +90,13 @@ namespace Business.ConstructiveHeuristics
                     {
                         InstanceNumber = instanceNumber,
                         DeliveryOrderTripId = deliveryOrderTrip.DeliveryOrderTripId,
+                        Volume = deliveryOrderTrip.Volume,
                         VehicleType = 1,
-                        Volume = deliveryOrderTrip.Volume
+                        VehicleTypeVolume = 8,
+                        ArrivalTimeAtConstruction = deliveryOrderTrip.RequestedTime,
+                        InitialUnloadTimeAtConstruction = deliveryOrderTrip.RequestedTime.Add(TimeSpan.FromMinutes(5)),
+                        FinalUnloadTimeAtConstruction = deliveryOrderTrip.RequestedTime.Add(TimeSpan.FromMinutes(25)),
+                        DepartureTimeFromConstruction = deliveryOrderTrip.RequestedTime.Add(TimeSpan.FromMinutes(30))
                     }
                 );
             }
@@ -101,8 +106,10 @@ namespace Business.ConstructiveHeuristics
 
         private List<Route> ConstructionOfRoutes(int instanceNumber,
             List<RouteNode> routeNodes,
-            Queue<DeliveryOrderTrip> sequenceOfCustomers)
+            Queue<DeliveryOrderTrip> sequenceOfCustomers,
+            Dictionary<string, double> distances)
         {
+            
             List<Route> routes = new List<Route>();
             List<int> deliveryOrderTripsInRoutes = new List<int>();
 
@@ -114,6 +121,29 @@ namespace Business.ConstructiveHeuristics
                         rn.DeliveryOrderTripId == deliveryOrderTrip.DeliveryOrderTripId);
 
 
+                    Route route = routes.FirstOrDefault(r => 
+                        r.VehicleType == routeNode.VehicleType &&
+                        r.RemainingVolume >= routeNode.Volume);
+
+                    var a = route.RouteNodes.Peek().ArrivalTimeAtConstruction - routeNode.DepartureTimeFromConstruction;
+
+                    if(distances.TryGetValue())
+
+                    if(route == null)
+                    {
+                        route = new Route();
+                        route.RemainingVolume -= (routeNode.VehicleTypeVolume - routeNode.Volume);
+                        route.VehicleType = routeNode.VehicleType;
+                        route.VehicleTypeVolume = routeNode.VehicleTypeVolume;
+                        route.RouteNodes.Enqueue(routeNode);
+                        routes.Add(route);
+                    }
+                    else
+                    {
+                        route.RemainingVolume -= routeNode.Volume;
+                        route.RouteNodes.Enqueue(routeNode);
+                    }
+                    deliveryOrderTripsInRoutes.Add(deliveryOrderTrip.DeliveryOrderTripId);
                 }
             }
 

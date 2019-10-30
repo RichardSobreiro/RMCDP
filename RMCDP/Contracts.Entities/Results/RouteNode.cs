@@ -9,8 +9,10 @@ namespace Contracts.Entities.Results
         public int DeliveryOrderTripId { get; set; }
 
         public decimal? Income { get; set; }
-        public int VehicleType { get; set; }
         public double Volume { get; set; }
+
+        public int VehicleType { get; set; }
+        public double VehicleTypeVolume { get; set; }
 
         public decimal? Cost { get; set; }
         
@@ -18,7 +20,6 @@ namespace Contracts.Entities.Results
         public DateTime? InitialUnloadTimeAtConstruction { get; set; }
         public DateTime? FinalUnloadTimeAtConstruction { get; set; }
         public DateTime? DepartureTimeFromConstruction { get; set; }
-        public DateTime? ArrivalTimeAtLoadPlace { get; set; }
                        
         public TimeSpan? WaitTimeAtLoadPlace { get; set; }
         public TimeSpan? WaitTimeAfterArrivalAtConstruction { get; set; }
