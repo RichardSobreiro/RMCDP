@@ -120,28 +120,49 @@ namespace Business.ConstructiveHeuristics
                     RouteNode routeNode = routeNodes.FirstOrDefault(rn => 
                         rn.DeliveryOrderTripId == deliveryOrderTrip.DeliveryOrderTripId);
 
-
-                    Route route = routes.FirstOrDefault(r => 
+                    List<Route> routeSameVehicleTypeAndAvailableVolume = routes.Where(r => 
                         r.VehicleType == routeNode.VehicleType &&
-                        r.RemainingVolume >= routeNode.Volume);
+                        r.RemainingVolume >= routeNode.Volume).ToList();
 
-                    var a = route.RouteNodes.Peek().ArrivalTimeAtConstruction - routeNode.DepartureTimeFromConstruction;
-
-                    if(distances.TryGetValue())
-
-                    if(route == null)
+                    Route routeSelected = null;
+                    foreach(Route route in routeSameVehicleTypeAndAvailableVolume)
                     {
-                        route = new Route();
-                        route.RemainingVolume -= (routeNode.VehicleTypeVolume - routeNode.Volume);
-                        route.VehicleType = routeNode.VehicleType;
-                        route.VehicleTypeVolume = routeNode.VehicleTypeVolume;
-                        route.RouteNodes.Enqueue(routeNode);
-                        routes.Add(route);
+                        RouteNode nextRouteNodeCurrenteRoute;
+                        double minDistance = double.MaxValue;
+                        if (route.RouteNodes.TryPeek(out nextRouteNodeCurrenteRoute))
+                        {
+                            double distance;
+                            if (distances.TryGetValue(
+                                routeNode.DeliveryOrderTripId.Format(nextRouteNodeCurrenteRoute.DeliveryOrderTripId),
+                                out distance))
+                            {
+                                if(distance < minDistance)
+                                {
+                                    TimeSpan? availableTimeWindowBetweenNodes =
+                                        nextRouteNodeCurrenteRoute.ArrivalTimeAtConstruction -
+                                        routeNode.DepartureTimeFromConstruction;
+                                    if(availableTimeWindowBetweenNodes >= TimeSpan.FromMinutes(distance))
+                                    {
+                                        routeSelected = route;
+                                    }
+                                }
+                            } 
+                        }
+                    }
+
+                    if(routeSelected == null)
+                    {
+                        routeSelected = new Route();
+                        routeSelected.RemainingVolume -= (routeNode.VehicleTypeVolume - routeNode.Volume);
+                        routeSelected.VehicleType = routeNode.VehicleType;
+                        routeSelected.VehicleTypeVolume = routeNode.VehicleTypeVolume;
+                        routeSelected.RouteNodes.Enqueue(routeNode);
+                        routes.Add(routeSelected);
                     }
                     else
                     {
-                        route.RemainingVolume -= routeNode.Volume;
-                        route.RouteNodes.Enqueue(routeNode);
+                        routeSelected.RemainingVolume -= routeNode.Volume;
+                        routeSelected.RouteNodes.Enqueue(routeNode);
                     }
                     deliveryOrderTripsInRoutes.Add(deliveryOrderTrip.DeliveryOrderTripId);
                 }
@@ -150,8 +171,22 @@ namespace Business.ConstructiveHeuristics
             return routes;
         }
 
+        private void DeterminationOfStartAndEndDepots(
+            List<Route> routes, 
+            Dictionary<string, double> distances,
+            Dictionary<int, Location> loadPlaces)
+        {
+            foreach(Route route in routes)
+            {
+                RouteNode first = route.RouteNodes.FirstOrDefault();
+                RouteNode last = route.RouteNodes.LastOrDefault();
+
+            }
+        }
+
         public BehrouzAlireza(IDeliveryOrderRepository _deliveryOrderRepository, 
-            ILoadPlacesRepository _loadPlacesRepository) : base(_deliveryOrderRepository, _loadPlacesRepository)
+            ILoadPlacesRepository _loadPlacesRepository) : 
+            base(_deliveryOrderRepository, _loadPlacesRepository)
         {
 
         }
