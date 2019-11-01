@@ -16,6 +16,7 @@ namespace Contracts.Entities.Results
         public double VehicleTypeVolume { get; set; }
 
         public double RemainingVolume { get; set; }
+        public double TotalVolume { get; set; }
 
         public DateTime? InitialLoadTime { get; set; }
         public DateTime? FinalLoadTime { get; set; }

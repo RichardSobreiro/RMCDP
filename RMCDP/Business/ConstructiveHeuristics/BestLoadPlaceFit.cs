@@ -88,12 +88,13 @@ namespace Business.ConstructiveHeuristics
                     resultTrip.Volume = deliveryOrderTrip.Volume;
 
                     resultTrip.InitialLoadTime = bestInitialLoadTime;
-                    resultTrip.FinalLoadTime = resultTrip.InitialLoadTime.Add(
-                        TimeSpan.FromMinutes(resultTrip.Volume * loadPlaceMinDistance.RateRMCProduction));
-                    resultTrip.DepartureTimeFromLoadPlace = 
-                        resultTrip.FinalLoadTime.Add(TimeSpan.FromMinutes(5));
-                    resultTrip.ArrivalTimeAtConstruction = 
-                        resultTrip.DepartureTimeFromLoadPlace.Add(TimeSpan.FromMinutes(minDistance));
+                    resultTrip.FinalLoadTime = resultTrip.InitialLoadTime.
+                        Add(TimeSpan.FromMinutes(resultTrip.Volume * loadPlaceMinDistance.RateRMCProduction));
+                    resultTrip.DepartureTimeFromLoadPlace = resultTrip.FinalLoadTime.
+                        Add(TimeSpan.FromMinutes(5));
+                    resultTrip.ArrivalTimeAtConstruction = resultTrip.DepartureTimeFromLoadPlace.
+                        Add(TimeSpan.FromMinutes(minDistance)).
+                        Add(TimeSpan.FromMinutes(5));
 
                     resultTrip.InitialUnloadTimeAtConstruction = 
                         resultTrip.ArrivalTimeAtConstruction.Add(TimeSpan.FromMinutes(5));

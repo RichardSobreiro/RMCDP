@@ -9,7 +9,10 @@ namespace Business.Extensions
             Location loadPlace, TimeSpan travelTime)
         {
             double loadDuration = loadPlace.RateRMCProduction * deliveryOrderTrip.Volume;
-            return deliveryOrderTrip.RequestedTime.Subtract(travelTime).Subtract(TimeSpan.FromMinutes(loadDuration));
+            return deliveryOrderTrip.RequestedTime.
+                Subtract(travelTime).
+                Subtract(TimeSpan.FromMinutes(5)).
+                Subtract(TimeSpan.FromMinutes(loadDuration));
         }
     }
 }

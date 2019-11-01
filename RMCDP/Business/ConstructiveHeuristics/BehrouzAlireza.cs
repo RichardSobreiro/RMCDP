@@ -127,19 +127,19 @@ namespace Business.ConstructiveHeuristics
                     Route routeSelected = null;
                     foreach(Route route in routeSameVehicleTypeAndAvailableVolume)
                     {
-                        RouteNode nextRouteNodeCurrenteRoute;
+                        RouteNode nextRouteNodeCurrentRoute;
                         double minDistance = double.MaxValue;
-                        if (route.RouteNodes.TryPeek(out nextRouteNodeCurrenteRoute))
+                        if (route.RouteNodes.TryPeek(out nextRouteNodeCurrentRoute))
                         {
                             double distance;
                             if (distances.TryGetValue(
-                                routeNode.DeliveryOrderTripId.Format(nextRouteNodeCurrenteRoute.DeliveryOrderTripId),
+                                routeNode.DeliveryOrderTripId.Format(nextRouteNodeCurrentRoute.DeliveryOrderTripId),
                                 out distance))
                             {
                                 if(distance < minDistance)
                                 {
                                     TimeSpan? availableTimeWindowBetweenNodes =
-                                        nextRouteNodeCurrenteRoute.ArrivalTimeAtConstruction -
+                                        nextRouteNodeCurrentRoute.ArrivalTimeAtConstruction -
                                         routeNode.DepartureTimeFromConstruction;
                                     if(availableTimeWindowBetweenNodes >= TimeSpan.FromMinutes(distance))
                                     {
@@ -148,20 +148,27 @@ namespace Business.ConstructiveHeuristics
                                 }
                             } 
                         }
+                        else
+                        {
+                            break;
+                        }
                     }
 
                     if(routeSelected == null)
                     {
                         routeSelected = new Route();
                         routeSelected.RemainingVolume -= (routeNode.VehicleTypeVolume - routeNode.Volume);
+                        routeSelected.TotalVolume += (routeNode.VehicleTypeVolume - routeNode.Volume);
                         routeSelected.VehicleType = routeNode.VehicleType;
                         routeSelected.VehicleTypeVolume = routeNode.VehicleTypeVolume;
                         routeSelected.RouteNodes.Enqueue(routeNode);
+                        
                         routes.Add(routeSelected);
                     }
                     else
                     {
                         routeSelected.RemainingVolume -= routeNode.Volume;
+                        routeSelected.TotalVolume += routeNode.Volume;
                         routeSelected.RouteNodes.Enqueue(routeNode);
                     }
                     deliveryOrderTripsInRoutes.Add(deliveryOrderTrip.DeliveryOrderTripId);
@@ -178,9 +185,68 @@ namespace Business.ConstructiveHeuristics
         {
             foreach(Route route in routes)
             {
-                RouteNode first = route.RouteNodes.FirstOrDefault();
-                RouteNode last = route.RouteNodes.LastOrDefault();
+                RouteNode firstNode = route.RouteNodes.FirstOrDefault();
+                RouteNode lastNode = route.RouteNodes.LastOrDefault();
 
+                double distance;
+                double minDistanceStartLoadPlace = double.MaxValue;
+                double minDistanceEndLoadPlace = double.MaxValue;
+                Location startLoadPlace = null;
+                Location endLoadPlace = null;
+                foreach (KeyValuePair<int, Location> loadPlace in loadPlaces)
+                {
+                    if((!distances.TryGetValue(firstNode.DeliveryOrderTripId.Format(loadPlace.Key), 
+                        out distance) ||
+                        !distances.TryGetValue(loadPlace.Key.Format(firstNode.DeliveryOrderTripId),
+                        out distance)))
+                    {
+                        DateTime initialLoadTime =
+                            firstNode.ArrivalTimeAtConstruction.Value.
+                            Subtract(TimeSpan.FromMinutes(5)).
+                            Subtract(TimeSpan.FromMinutes(route.TotalVolume * startLoadPlace.RateRMCProduction)).
+                            Subtract(TimeSpan.FromMinutes(distance)).
+                            Subtract(TimeSpan.FromMinutes(5));
+
+                        if (distance < minDistanceStartLoadPlace &&
+                            loadPlace.Value.Vehicles.Any(v => v.Value.GetEndOfLastTrip() <= initialLoadTime))
+                        {
+                            minDistanceStartLoadPlace = distance;
+                            startLoadPlace = loadPlace.Value;
+                        }
+                    }
+
+                    if (!distances.TryGetValue(lastNode.DeliveryOrderTripId.Format(loadPlace.Key),
+                        out distance) ||
+                        !distances.TryGetValue(loadPlace.Key.Format(lastNode.DeliveryOrderTripId),
+                        out distance))
+                    {
+                        if (distance < minDistanceEndLoadPlace)
+                        {
+                            minDistanceEndLoadPlace = distance;
+                            endLoadPlace = loadPlace.Value;
+                        }
+                    }
+                }
+
+                if(startLoadPlace != null && endLoadPlace != null)
+                {
+                    route.StartLoadPlaceId = startLoadPlace.LocationId;
+
+                    route.InitialLoadTime = firstNode.ArrivalTimeAtConstruction.Value.
+                        Subtract(TimeSpan.FromMinutes(5)).
+                        Subtract(TimeSpan.FromMinutes(minDistanceStartLoadPlace)).
+                        Subtract(TimeSpan.FromMinutes(5)).
+                        Subtract(TimeSpan.FromMinutes(route.TotalVolume * startLoadPlace.RateRMCProduction));
+                    route.FinalLoadTime = route.InitialLoadTime.Value.
+                        Add(TimeSpan.FromMinutes(route.TotalVolume * startLoadPlace.RateRMCProduction));
+
+                    route.DepartureTimeFromLoadPlace = route.FinalLoadTime.Value.
+                        Add(TimeSpan.FromMinutes(5));
+
+                    route.ArrivalTimeAtLoadPlace = lastNode.FinalUnloadTimeAtConstruction.Value.
+                        Add(TimeSpan.FromMinutes(5)).
+                        Add(TimeSpan.FromMinutes(minDistanceEndLoadPlace));
+                }
             }
         }
 
