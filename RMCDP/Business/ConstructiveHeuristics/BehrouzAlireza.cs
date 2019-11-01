@@ -250,6 +250,11 @@ namespace Business.ConstructiveHeuristics
             }
         }
 
+        public void FindBestVehicleAvailable(List<Route> routes)
+        {
+
+        }
+
         public BehrouzAlireza(IDeliveryOrderRepository _deliveryOrderRepository, 
             ILoadPlacesRepository _loadPlacesRepository) : 
             base(_deliveryOrderRepository, _loadPlacesRepository)
