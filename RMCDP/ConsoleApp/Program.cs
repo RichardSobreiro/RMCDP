@@ -37,6 +37,62 @@ namespace ConsoleApp
                 DateTime end = new DateTime(2019, 1, 3, 0, 0, 0);
 
                 behrouzAlireza.Execute(grandeCentroId, begin, end);
+
+                grandeCentroId = 12;
+                begin = new DateTime(2019, 1, 2, 0, 0, 0);
+                end = new DateTime(2019, 1, 4, 0, 0, 0);
+
+                behrouzAlireza.Execute(grandeCentroId, begin, end);
+
+                grandeCentroId = 12;
+                begin = new DateTime(2019, 1, 7, 0, 0, 0);
+                end = new DateTime(2019, 1, 10, 0, 0, 0);
+
+                behrouzAlireza.Execute(grandeCentroId, begin, end);
+
+                grandeCentroId = 12;
+                begin = new DateTime(2019, 1, 7, 0, 0, 0);
+                end = new DateTime(2019, 1, 11, 0, 0, 0);
+
+                behrouzAlireza.Execute(grandeCentroId, begin, end);
+
+                grandeCentroId = 12;
+                begin = new DateTime(2019, 1, 7, 0, 0, 0);
+                end = new DateTime(2019, 1, 14, 0, 0, 0);
+
+                behrouzAlireza.Execute(grandeCentroId, begin, end);
+
+                //-----------------------------------------------------
+
+                grandeCentroId = 12;
+                begin = new DateTime(2019, 1, 2, 0, 0, 0);
+                end = new DateTime(2019, 1, 3, 0, 0, 0);
+
+                bestLoadPlace.Execute(grandeCentroId, begin, end);
+
+                grandeCentroId = 12;
+                begin = new DateTime(2019, 1, 2, 0, 0, 0);
+                end = new DateTime(2019, 1, 4, 0, 0, 0);
+
+                bestLoadPlace.Execute(grandeCentroId, begin, end);
+
+                grandeCentroId = 12;
+                begin = new DateTime(2019, 1, 7, 0, 0, 0);
+                end = new DateTime(2019, 1, 10, 0, 0, 0);
+
+                bestLoadPlace.Execute(grandeCentroId, begin, end);
+
+                grandeCentroId = 12;
+                begin = new DateTime(2019, 1, 7, 0, 0, 0);
+                end = new DateTime(2019, 1, 11, 0, 0, 0);
+
+                bestLoadPlace.Execute(grandeCentroId, begin, end);
+
+                grandeCentroId = 12;
+                begin = new DateTime(2019, 1, 7, 0, 0, 0);
+                end = new DateTime(2019, 1, 14, 0, 0, 0);
+
+                bestLoadPlace.Execute(grandeCentroId, begin, end);
             }
 
             public ConsoleApplication(IBestLoadPlaceFit _bestLoadPlace, IBehrouzAlireza _behrouzAlireza)

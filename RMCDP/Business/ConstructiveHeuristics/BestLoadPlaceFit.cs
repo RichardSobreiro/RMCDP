@@ -7,7 +7,9 @@ using Contracts.Interfaces.Business;
 using Contracts.Interfaces.Repository.Instances;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace Business.ConstructiveHeuristics
@@ -21,12 +23,31 @@ namespace Business.ConstructiveHeuristics
             Dictionary<int, Location> loadPlaces = GetLoadPlacesWithVehicles(instanceNumber);
             Dictionary<string, double> distances = ComputeDistances(log, instanceNumber, begin, end, deliveryOrdersTrips, loadPlaces);
 
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
             decimal totalIncome = 0;
             List<Trip> trips = BestFitConstructionHeuristic(log, deliveryOrdersTrips, 
                 loadPlaces, distances, instanceNumber, out totalIncome);
 
-            Console.WriteLine($"Total Income: {totalIncome}");
-            
+            stopwatch.Stop();
+
+            Console.WriteLine("MAXIMIZE PROFIT HEURISTIC");
+            Console.WriteLine("{0,15} {1,15} {2,15} {3,15} {4,15} {5,15}",
+                "Total V.",
+                "Qtd. V. At.",
+                "Betoneiras",
+                "V. Nao Atendidas",
+                "Tempo",
+                "Lucro");
+            Console.WriteLine("{0,15} {1,15} {2,15} {3,15} {4,15} {5,15}",
+                deliveryOrdersTrips.Count, 
+                trips.Count,
+                trips.GroupBy(r => r.VehicleId).Count().ToString(),
+                deliveryOrdersTrips.Count - trips.Count,
+                stopwatch.Elapsed.TotalSeconds,
+                totalIncome);
+
             File.WriteAllText(Directory.GetCurrentDirectory() + $"/Logs-BestLoadPlaceFit-{instanceNumber}.txt", "");
             File.AppendAllText(Directory.GetCurrentDirectory() + $"/Logs-BestLoadPlaceFit-{instanceNumber}.txt", log.ToString());
             log.Clear();
@@ -136,11 +157,7 @@ namespace Business.ConstructiveHeuristics
         public BestLoadPlaceFit(IDeliveryOrderRepository _deliveryOrderRepository, 
             ILoadPlacesRepository _loadPlacesRepository) : base(_deliveryOrderRepository, _loadPlacesRepository)
         {
-            deliveryOrderRepository = _deliveryOrderRepository;
-            loadPlacesRepository = _loadPlacesRepository;
-        }
 
-        private IDeliveryOrderRepository deliveryOrderRepository;
-        private ILoadPlacesRepository loadPlacesRepository;
+        }
     }
 }

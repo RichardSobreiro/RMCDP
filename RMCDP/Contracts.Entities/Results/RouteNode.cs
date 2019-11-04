@@ -7,8 +7,10 @@ namespace Contracts.Entities.Results
         public int RouteNodeId { get; set; }
         public int InstanceNumber { get; set; }
         public int DeliveryOrderTripId { get; set; }
+        public int LocationId { get; set; }
 
         public decimal? Income { get; set; }
+        public decimal? RMCCost { get; set; }
         public double Volume { get; set; }
 
         public int VehicleType { get; set; }
