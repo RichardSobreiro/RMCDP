@@ -63,7 +63,7 @@ namespace Business.EvolutionaryAlgorithms
 
             foreach (Individual individual in population)
             {
-                individual.Fitness = ComputeFitness(individual, deliveryOrdersTrips, loadPlaces, distances);
+                individual.Fitness = ComputeFitness(individual, distances);
             }
 
             int currentGeneration = 0;
@@ -73,11 +73,7 @@ namespace Business.EvolutionaryAlgorithms
                 population = Mating(populationSize, parents, loadPlaces, distances);
                 foreach (Individual individual in population)
                 {
-                    individual.Fitness = ComputeFitness(
-                        individual, 
-                        deliveryOrdersTrips, 
-                        loadPlaces, 
-                        distances);
+                    individual.Fitness = ComputeFitness(individual, distances);
                 }
                 currentGeneration++;
             }
@@ -206,8 +202,13 @@ namespace Business.EvolutionaryAlgorithms
                     gene.DeliveryOrderTripId = deliveryOrderTrip.DeliveryOrderTripId;
                     gene.Begin = initialLoadTime;
                     gene.End = arrivalTimeAtLoadPlace;
-                    gene.VehicleId = 1;
+                    gene.VehicleId = 0;
                     gene.LoadPlaceId = loadPlaceMinDistance.LocationId;
+                    gene.Volume = deliveryOrderTrip.Volume;
+                    gene.RequestedTime = deliveryOrderTrip.RequestedTime;
+                    gene.Income = deliveryOrderTrip.Income;
+                    gene.RMCCost = deliveryOrderTrip.RMCCost;
+                    gene.LocationId = deliveryOrderTrip.Construction.LocationId;
 
                     individual.Chromosome.Genes.Add(gene);
                 }
@@ -218,8 +219,6 @@ namespace Business.EvolutionaryAlgorithms
 
         public decimal ComputeFitness(
             Individual individual,
-            List<DeliveryOrderTrip> deliveryOrdersTrips,
-            Dictionary<int, Location> loadPlaces,
             Dictionary<string, double> distances)
         {
             decimal totalIncome = 0;

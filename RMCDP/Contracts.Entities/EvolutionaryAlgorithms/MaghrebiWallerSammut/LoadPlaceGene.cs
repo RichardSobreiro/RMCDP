@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace Contracts.Entities.EvolutionaryAlgorithms.SimpleGA
+namespace Contracts.Entities.EvolutionaryAlgorithms.MaghrebiWallerSammut
 {
-    public class Gene
+    public class LoadPlaceGene
     {
         public int DeliveryOrderTripId { get; set; }
         public decimal Income { get; set; }
